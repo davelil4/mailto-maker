@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mailto Link Shortener</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Mailto Link Shortener</h1>
+        <form method="post" action="/">
+            <label for="email">Email Address (separate multiple with commas):</label>
+            <input type="text" id="email" name="email" value="{{ request.form.get('email', '') }}" required>
+
+            <label for="subject">Subject:</label>
+            <input type="text" id="subject" name="subject" value="{{ request.form.get('subject', '') }}">
+
+            <label for="body">Body:</label>
+            <textarea id="body" name="body" rows="6">{{ request.form.get('body', '') }}</textarea>
+
+            <label for="cc">CC (separate multiple with commas):</label>
+            <input type="text" id="cc" name="cc" value="{{ request.form.get('cc', '') }}">
+
+            <label for="bcc">BCC (separate multiple with commas):</label>
+            <input type="text" id="bcc" name="bcc" value="{{ request.form.get('bcc', '') }}">
+
+            <label for="alias">TinyURL Alias (optional):</label>
+            <input type="text" id="alias" name="alias" value="{{ request.form.get('alias', '') }}">
+
+            <label for="auth_key">TinyURL API Authorization Key:</label>
+            <input type="text" id="auth_key" name="auth_key" value="{{ request.form.get('auth_key', '') }}" required>
+
+            <button type="submit">Generate Short Link</button>
+        </form>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class="messages">
+              {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+        {% if short_link %}
+            <div class="result">
+                <p>Shortened Mailto Link: <a href="{{ short_link }}">{{ short_link }}</a></p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
