@@ -41,6 +41,23 @@ def shorten_url(url: str, alias: str, auth_key: str) -> str:
     else:
         raise Exception(f"Failed to shorten URL: {response.json().get('errors')}")
 
+def update_url(url: str, alias: str, auth_key: str) -> str:
+    api_url = f"https://api.tinyurl.com/update/{alias}"
+    headers = {
+        'Authorization': f'Bearer {auth_key}',
+        'Content-Type': 'application/json'
+    }
+    data = {
+        "url": url,
+        "domain": "tinyurl.com"
+    }
+
+    response = requests.put(api_url, headers=headers, json=data)
+    if response.status_code == 200:
+        return response.json().get('data', {}).get('tiny_url')
+    else:
+        raise Exception(f"Failed to update URL: {response.json().get('errors')}")
+
 def is_valid_email(email: str) -> bool:
     pattern = r"[^@]+@[^@]+\.[^@]+"
     return re.match(pattern, email) is not None
@@ -55,6 +72,7 @@ def index():
         bcc = request.form['bcc']
         alias = request.form['alias']
         auth_key = request.form['auth_key']
+        action = request.form['action']
 
         # Validate emails
         emails = [e.strip() for e in email.split(',')]
@@ -73,7 +91,14 @@ def index():
         
         try:
             mailto_link = generate_mailto_link(','.join(emails), subject, body, ','.join(ccs), ','.join(bccs))
-            short_link = shorten_url(mailto_link, alias, auth_key)
+            if action == 'shorten':
+                short_link = shorten_url(mailto_link, alias, auth_key)
+            elif action == 'update':
+                short_link = update_url(mailto_link, alias, auth_key)
+            else:
+                flash('Invalid action', 'error')
+                return render_template('index.html', email=email, subject=subject, body=body, cc=cc, bcc=bcc, alias=alias, auth_key=auth_key)
+
             return render_template('index.html', short_link=short_link, email=email, subject=subject, body=body, cc=cc, bcc=bcc, alias=alias, auth_key=auth_key)
         except Exception as e:
             flash(f"Error: {str(e)}", 'error')
