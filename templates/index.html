@@ -31,7 +31,16 @@
             <label for="auth_key">TinyURL API Authorization Key:</label>
             <input type="text" id="auth_key" name="auth_key" value="{{ request.form.get('auth_key', '') }}" required>
 
-            <button type="submit">Generate Short Link</button>
+            <div>
+                <input type="radio" id="shorten" name="action" value="shorten" checked>
+                <label for="shorten">Shorten URL</label>
+            </div>
+            <div>
+                <input type="radio" id="update" name="action" value="update">
+                <label for="update">Update URL</label>
+            </div>
+
+            <button type="submit">Generate Link</button>
         </form>
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
